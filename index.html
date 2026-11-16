@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cálculo de Carga de Fuego - mbelluomini®</title>
+<style>
+:root{--p:#1a2a3a;--a:#d35400;--ok:#27ae60;--no:#c0392b;--l:#f0f2f5}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',sans-serif;-webkit-user-select:none;user-select:none}
+input,select{-webkit-user-select:text;user-select:text;padding:8px;border:1px solid #ccc;border-radius:5px;font-size:.88rem;width:100%}
+body{background:#e9ecef;padding:12px;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><text x="10" y="100" fill="rgba(0,0,0,0.03)" font-size="20" transform="rotate(-45 50,100)">mbelluomini®</text></svg>')}
+.wrap{max-width:1150px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 8px 20px #0002;overflow:hidden}
+header{background:var(--p);color:#fff;padding:16px;text-align:center;border-bottom:4px solid var(--a)}
+header small{opacity:.85}.pad{padding:16px}
+.tabs{display:flex;gap:6px;padding:10px 16px 0}.tabs button{flex:1}
+.btn{padding:9px 14px;border:0;border-radius:5px;cursor:pointer;font-weight:700;color:#fff;background:#34495e}
+.btn.a{background:var(--a)}.btn.gr{background:var(--ok)}.btn.r{background:var(--no)}.btn.on{outline:3px solid var(--a)}
+.x{background:none;border:0;color:var(--no);cursor:pointer;font-size:1rem}
+.box{background:var(--l);border-radius:8px;padding:12px;margin-bottom:14px}
+.box h3{font-size:.95rem;color:var(--p);margin-bottom:8px}
+.g{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));align-items:end}
+label{font-size:.75rem;font-weight:700;color:var(--p);display:block;margin-bottom:3px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:end}.row>*{flex:1}.row .btn{flex:0 0 auto}
+.tw{overflow:auto;max-height:340px;border:1px solid #ddd;border-radius:5px;background:#fff}
+table{width:100%;border-collapse:collapse}th{background:#34495e;color:#fff;padding:8px;text-align:left;font-size:.8rem;position:sticky;top:0}
+td{padding:6px 8px;border-bottom:1px solid #eee;font-size:.82rem}
+.res{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.card{background:#fff;border:1px solid #ddd;border-radius:8px;padding:10px;text-align:center}
+.card b{display:block;font-size:1.5rem;color:var(--a)}.card.h{background:var(--p);color:#fff}.card.h b{color:#f1c40f;font-size:2rem}
+.al{margin-top:10px;padding:8px 12px;border-left:4px solid var(--no);background:#fdecea;font-size:.82rem;border-radius:4px;margin-bottom:6px}
+.al.i{border-color:#2980b9;background:#eaf3fb}
+.ok{color:var(--ok);font-weight:700}.no{color:var(--no);font-weight:700}
+.hide{display:none!important}
+/* planillas */
+#sheets{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sheet{background:#fff;width:210mm;max-width:100%;padding:12mm;border:1px solid #ccc;font-size:11px;-webkit-user-select:text;user-select:text}
+.sheet *{font-size:11px;-webkit-user-select:text;user-select:text}
+.sheet h2{font-size:14px;background:var(--p);color:#fff;padding:6px 8px;margin-bottom:6px}
+.sheet table{margin:6px 0}.sheet th,.sheet td{border:1px solid #444;padding:3px 5px;position:static;color:#000;background:#fff;text-align:center}
+.sheet th{background:#d9dee3;font-weight:700}.sheet td.l,.sheet th.l{text-align:left}.sheet .k td:nth-child(odd){background:#eef1f4;font-weight:700;text-align:left}
+.sheet .n{font-size:9.5px;color:#333;margin-top:4px}.sheet .sig{margin-top:26px;text-align:right}
+@media print{@page{size:A4;margin:0}body{background:none;padding:0}.wrap{box-shadow:none;border-radius:0}
+header,.tabs,#editor,.tb,.noprint{display:none!important}#view2{display:block!important}.pad{padding:0}
+.sheet{border:0;width:210mm;min-height:296mm;page-break-after:always;break-after:page}
+body[data-print=sum] .sheet:not(.sum),body[data-print=cur] .sheet:not(.cur){display:none}}
+@media screen{
+:root{--p:#14213d;--a:#e4572e;--l:#f6f7fb;--cd:#fff;--bd:#e3e7ef;--tx:#14213d;--mu:#5b6577}
+body{background:#eef1f6;background-image:none;padding:20px}
+.wrap{max-width:1320px;border-radius:18px;box-shadow:0 20px 50px #14213d22}
+header{text-align:left;background:linear-gradient(120deg,#14213d,#26385f);border-bottom:0;padding:22px 28px;position:relative}
+header:before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--a)}
+header h1{font-size:1.5rem}
+.tabs{padding:14px 28px 0;gap:0;background:#f6f7fb;border-bottom:1px solid var(--bd)}
+.tabs button{flex:0 0 auto;background:transparent;color:var(--mu);border-radius:10px 10px 0 0;padding:10px 22px}
+.tabs button.on{outline:0;background:#fff;color:var(--a);box-shadow:0 -3px 0 var(--a) inset}
+.pad{padding:24px 28px}
+#editor{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+#editor>*{margin:0!important;min-width:0}
+#editor .box{background:#fff;border:1px solid var(--bd);border-radius:14px;box-shadow:0 2px 8px #14213d0d;padding:18px}
+#editor>.box:first-child,#editor .box:has(.tw),#editor .box:has(#exl),#editor .box:has(.res),#dash{grid-column:1/-1}
+.box h3{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mu);margin-bottom:12px}
+input,select{border-radius:9px;border-color:#d5dbe7;background:#fafbfd}
+input:focus,select:focus{outline:2px solid #e4572e55;border-color:var(--a)}
+.btn{border-radius:9px}
+#editor th{background:#f0f3f9;color:var(--mu);text-transform:uppercase;font-size:.7rem;letter-spacing:.05em}
+.card{border-radius:12px;border:0;background:#f6f7fb}.card.h{background:linear-gradient(120deg,#14213d,#26385f)}
+#dash{margin-bottom:18px}
+#dash .kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:12px}
+#dash .kc{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;border-top:3px solid var(--a)}
+#dash .kc span{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu)}
+#dash .kc b{font-size:1.7rem;color:var(--tx)}
+#dash .dg{display:grid;grid-template-columns:2fr 1fr;gap:12px}@media(max-width:760px){#dash .dg{grid-template-columns:1fr}}
+#dash .dc{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px}
+#dash h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu);margin-bottom:10px}
+#dash .br{display:grid;grid-template-columns:110px 1fr 54px;gap:8px;align-items:center;margin:6px 0;cursor:pointer;font-size:.8rem;color:var(--tx)}
+#dash .br i{height:12px;background:var(--bd);border-radius:6px;overflow:hidden}
+#dash u{display:block;height:100%;text-decoration:none}#dash .br em{font-style:normal;text-align:right;font-weight:700}
+#dash .vok{background:#27ae60}#dash .vno{background:#e74c3c}#dash .vnd{background:#8d99a8}
+#dash .stk{display:flex;height:26px;border-radius:8px;overflow:hidden;margin-bottom:10px}
+#dash .stk u{color:#fff;text-align:center;line-height:26px;font-size:.8rem;font-weight:700}
+#dash .lg{display:flex;gap:12px;flex-wrap:wrap;font-size:.75rem;color:var(--mu)}#dash .lg i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#14213d">
+<link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+<header><h1>Cálculo de Carga de Fuego</h1><small>mbelluomini® | Ley 19.587 – Dto. 351/79 – Anexo VII, Cap. 18</small></header>
+<div class="tabs"><button class="btn on" id="t1" onclick="tab(1)">1. Estudio</button><button class="btn" id="t2" onclick="tab(2)">2. Planillas e impresión</button></div>
+
+<div class="pad" id="editor">
+<div class="box"><h3>Establecimiento</h3><div class="g">
+<div><label>Establecimiento / Razón social</label><input data-e="nom"></div><div><label>Domicilio</label><input data-e="dom"></div>
+<div><label>CUIT</label><input data-e="cuit"></div><div><label>Profesional</label><input data-e="prof"></div>
+<div><label>Matrícula</label><input data-e="mat"></div><div><label>Fecha</label><input type="date" data-e="fec"></div></div></div>
+
+<section id="dash"><div class="kp" id="kp"></div><div class="dg"><div class="dc"><h4>Carga de fuego por local (kg/m²)</h4><div id="bars"></div></div><div class="dc"><h4>Estado de verificación</h4><div id="vst"></div></div></div></section>
+<div class="box"><h3>Alcance del estudio</h3><div class="g">
+<div><label>Superficie total del estudio (m²)</label><input type="number" min="0" step="any" id="tsup" placeholder="0.00" oninput="S.tot.sup=this.value;save();refresh()"></div>
+<div><label>¿En cuántos locales / sectores se divide? *</label><input type="number" min="1" max="60" step="1" id="nloc"></div>
+<button class="btn gr" onclick="setN()">Definir locales</button></div><div id="tinfo"></div></div>
+
+<div class="box"><h3>Local / sector de incendio</h3>
+<div class="row" style="margin-bottom:10px"><div style="flex:3"><label>Local en estudio</label><select id="lsel" onchange="S.cur=+this.value;save();loadF();refresh()"></select></div>
+<button class="btn gr" onclick="newLoc(0)">＋ Nuevo</button><button class="btn" onclick="newLoc(1)">⧉ Duplicar</button><button class="btn r" onclick="delLoc()">Eliminar</button></div>
+<div class="g">
+<div><label>Nombre del local</label><input data-l="nom" placeholder="Ej: SUM, COC, HAB_1"></div>
+<div><label>Piso / nivel</label><input data-l="piso" placeholder="PB, 1°, SS1"></div>
+<div><label>Superficie de piso (m²) *</label><input type="number" min="0.1" step="any" data-l="sup" placeholder="0.00"></div>
+<div><label>Actividad predominante (Tabla 2.1)</label><select data-l="uso"><option value="RA">Residencial / Administrativo</option><option value="CID">Comercial / Industrial / Depósito</option><option value="EC">Espectáculos / Cultura</option></select></div>
+<div><label>Ventilación (cuadro 2.2.1 / 2.2.2)</label><select data-l="vent"><option value="nat">Natural</option><option value="mec">Mecánica</option></select></div>
+<div><label>Riesgo adoptado</label><select data-l="rk"><option value="">Automático (predominante)</option><option value="1">1 – Explosivo</option><option value="2">2 – Inflamable</option><option value="3">3 – Muy combustible</option><option value="4">4 – Combustible</option><option value="5">5 – Poco combustible</option><option value="6">6 – Incombustible</option><option value="7">7 – Refractario</option></select></div></div></div>
+
+<div class="box"><h3>Materiales del local</h3>
+<div class="row"><div><label>Filtrar</label><input id="q" oninput="fillMat()" placeholder="Buscar..."></div>
+<div style="flex:2"><label>Material</label><select id="mat" onchange="syncU()"></select></div>
+<div><label id="lq">Cantidad (kg)</label><input type="number" id="qty" step="any" min="0" placeholder="0.00"></div>
+<div id="uw" style="display:none"><label>Unidad</label><select id="un" onchange="syncU()"><option value="kg">Kg</option><option value="lt">Litros</option></select></div>
+<button class="btn gr" onclick="addMat()">＋ AGREGAR</button></div>
+<details style="margin-top:8px"><summary style="cursor:pointer;font-size:.82rem;font-weight:700">Material no listado en la base</summary>
+<div class="row" style="margin-top:6px"><div style="flex:2"><label>Nombre</label><input id="cn"></div><div><label>P. calorífico (kcal/kg)</label><input type="number" id="cp"></div>
+<div><label>Masa (kg)</label><input type="number" id="cq"></div><div><label>Riesgo</label><select id="ck"><option value="2">2 – Inflamable</option><option value="3">3 – Muy comb.</option><option value="4" selected>4 – Combustible</option><option value="5">5 – Poco comb.</option><option value="6">6 – Incombustible</option></select></div>
+<button class="btn" onclick="addCus()">Agregar</button></div></details>
+<div class="tw" style="margin-top:10px"><table><thead><tr><th>Nº</th><th>Material</th><th>Ref.</th><th>P. cal. (kcal/kg)</th><th>Cantidad</th><th>Masa (kg)</th><th>Energía (kcal)</th><th>Riesgo*</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+<p style="font-size:.72rem;margin-top:4px;color:#555">* Clasificación orientativa según 1.5 del Anexo VII (E = riesgo especial, se evalúa aparte). El profesional adopta el riesgo final.</p></div>
+
+<div class="box"><h3>Matafuegos existentes en el lugar</h3>
+<p style="font-size:.78rem;margin-bottom:8px;color:#555">Cargue cada tipo de matafuego presente en el establecimiento y tilde los locales que cubre: un mismo matafuego puede servir a varios locales.</p>
+<div id="exl"></div><div class="row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn gr" onclick="addExt()">＋ Agregar matafuego</button><select id="cat" onchange="addCat(this.value);this.value=''" style="max-width:340px"></select></div>
+<p style="font-size:.72rem;color:#666;margin-top:8px">Referencias: <a href="https://www.extintoresfadesa.com.ar/assets/pdf/index-catalogo-web.pdf" target="_blank" rel="noopener">Catálogo Fadesa</a> · <a href="https://www.ms.gba.gov.ar/sitios/psst/wp-content/uploads/sites/217/2023/12/Manual-6-Teorico-Practico-Extintores-Manuales.pdf" target="_blank" rel="noopener">Manual de Extintores – Prov. de Buenos Aires</a>. Los potenciales del catálogo son orientativos: confirmar siempre con la etiqueta / certificación del equipo instalado.</p></div>
+
+<div class="box"><h3>Resultado del local</h3><div class="res" id="res"></div><div id="als"></div></div>
+<div class="box"><h3>Resultados discriminados por local</h3><div class="tw"><table><thead><tr><th>Local</th><th>Piso</th><th>m²</th><th>q (kg/m²)</th><th>Riesgo</th><th>Resist.</th><th>Pot. necesario</th><th>Matafuegos que lo cubren</th><th>Verif.</th></tr></thead><tbody id="allr"></tbody></table></div></div>
+</div>
+
+<div class="pad hide" id="view2">
+<div class="tb row" style="margin-bottom:12px"><button class="btn a" onclick="prt('all')">🖨 Imprimir todo (locales + resumen)</button><button class="btn" onclick="prt('cur')">Solo local actual</button><button class="btn" onclick="prt('sum')">Solo resumen</button>
+<button class="btn" onclick="expJ()">💾 Guardar estudio (.json)</button><button class="btn" onclick="$('fi').click()">📂 Abrir estudio</button><button class="btn r" onclick="resetAll()">Nuevo estudio</button><input type="file" id="fi" accept=".json" class="hide" onchange="impJ(this)"></div>
+<div id="sheets"></div></div>
+</div>
+<footer style="text-align:center;font-size:.78rem;color:#7f8c8d;margin:14px" class="noprint">© <span id="yr"></span> mbelluomini® | Queda prohibida la reproducción total o parcial de esta herramienta.</footer>
+
+<script>
+// Anti-copia (disuasivo): el cuerpo no es seleccionable; inputs y planillas sí.
+document.addEventListener('keydown',e=>{if(e.keyCode==123||(e.ctrlKey&&e.shiftKey&&(e.keyCode==73||e.keyCode==74))||(e.ctrlKey&&e.keyCode==85)){e.preventDefault()}});
+document.addEventListener('contextmenu',e=>{if(!/INPUT|SELECT/.test(e.target.tagName))e.preventDefault()});
+
+const DB=[{id:1, m:"Papel blanco", r:"Papel oficina A4", p:4000, l:false},
+        {id:2, m:"Papel reciclado", r:"Papel reciclado industrial", p:3800, l:false},
+        {id:3, m:"Papel higiénico", r:"Tissue", p:4100, l:false},
+        {id:4, m:"Papel kraft", r:"Bolsas kraft", p:4200, l:false},
+        {id:5, m:"Cartón corrugado", r:"Caja corrugada", p:4200, l:false},
+        {id:6, m:"Cartón prensado", r:"Packaging industrial", p:4100, l:false},
+        {id:7, m:"Libros", r:"Bibliografía", p:4000, l:false},
+        {id:8, m:"Revistas", r:"Papel ilustración", p:4300, l:false},
+        {id:9, m:"Diarios", r:"Papel prensa", p:3900, l:false},
+        {id:10, m:"Archivos", r:"Documentación", p:3900, l:false},
+        {id:11, m:"Madera pino", r:"Pino seco", p:4400, l:false},
+        {id:12, m:"Madera eucalipto", r:"Eucalipto", p:4500, l:false},
+        {id:13, m:"Madera quebracho", r:"Quebracho colorado", p:4800, l:false},
+        {id:14, m:"Madera roble", r:"Roble", p:4600, l:false},
+        {id:15, m:"Madera cedro", r:"Cedro", p:4400, l:false},
+        {id:16, m:"MDF", r:"Fibrofácil", p:4300, l:false},
+        {id:17, m:"Melamina", r:"Mueble melamínico", p:4500, l:false},
+        {id:18, m:"Aglomerado", r:"Tablero prensado", p:4200, l:false},
+        {id:19, m:"Pallets", r:"Tarimas madera", p:4400, l:false},
+        {id:20, m:"Aserrin", r:"Viruta", p:4200, l:false},
+        {id:21, m:"Carbón vegetal", r:"Carbón parrillero", p:7000, l:false},
+        {id:22, m:"Carbón mineral", r:"Coque", p:7500, l:false},
+        {id:23, m:"Leña húmeda", r:"Leña verde", p:3000, l:false},
+        {id:24, m:"Leña seca", r:"Leña estacionada", p:4300, l:false},
+        {id:25, m:"Corcho", r:"Tapones", p:4500, l:false},
+        {id:26, m:"Bambú", r:"Madera bambú", p:4300, l:false},
+        {id:27, m:"Algodón", r:"Tela algodón", p:4000, l:false},
+        {id:28, m:"Lana", r:"Tejidos lana", p:4500, l:false},
+        {id:29, m:"Seda", r:"Tela seda", p:4200, l:false},
+        {id:30, m:"Lino", r:"Tela lino", p:4100, l:false},
+        {id:31, m:"Nylon", r:"Fibra nylon", p:7500, l:false},
+        {id:32, m:"Polyester", r:"Tela sintética", p:6000, l:false},
+        {id:33, m:"Acrílico textil", r:"Fibras acrílicas", p:7000, l:false},
+        {id:34, m:"Denim", r:"Jean", p:4300, l:false},
+        {id:35, m:"Cuero", r:"Cuero vacuno", p:4300, l:false},
+        {id:36, m:"Goma espuma", r:"Poliuretano expandido", p:6500, l:false},
+        {id:37, m:"Espuma colchón", r:"Colchón espuma", p:6000, l:false},
+        {id:38, m:"Colchón resortes", r:"Mixto", p:5500, l:false},
+        {id:39, m:"Alfombra sintética", r:"Moquette", p:6000, l:false},
+        {id:40, m:"Alfombra lana", r:"Lana natural", p:4500, l:false},
+        {id:41, m:"Caucho natural", r:"Goma natural", p:8000, l:false},
+        {id:42, m:"Neumáticos", r:"Cubiertas", p:8000, l:false},
+        {id:43, m:"Cámara neumática", r:"Goma butilo", p:7900, l:false},
+        {id:44, m:"PVC rígido", r:"Caños PVC", p:4500, l:false},
+        {id:45, m:"PVC flexible", r:"Cableado", p:5000, l:false},
+        {id:46, m:"Polietileno", r:"Bolsas plásticas", p:11000, l:false},
+        {id:47, m:"Polipropileno", r:"Envases", p:11000, l:false},
+        {id:48, m:"Poliestireno", r:"Telgopor", p:10000, l:false},
+        {id:49, m:"PET", r:"Botellas", p:5500, l:false},
+        {id:50, m:"ABS", r:"Carcasas electrónicas", p:8500, l:false},
+        {id:51, m:"Acrílico", r:"PMMA", p:6500, l:false},
+        {id:52, m:"Resina epoxi", r:"Epoxi industrial", p:7000, l:false},
+        {id:53, m:"Resina poliéster", r:"Fibra vidrio", p:7500, l:false},
+        {id:54, m:"Fibra de vidrio", r:"PRFV", p:3500, l:false},
+        {id:55, m:"Poliuretano", r:"Espuma PU", p:6500, l:false},
+        {id:56, m:"Teflón", r:"PTFE", p:5000, l:false},
+        {id:57, m:"Silicona", r:"Selladores", p:7000, l:false},
+        {id:58, m:"Espuma EVA", r:"Goma EVA", p:6500, l:false},
+        {id:59, m:"Vinilo", r:"Revestimientos", p:5000, l:false},
+        {id:60, m:"Laminado plástico", r:"Fórmica", p:5500, l:false},
+        {id:61, m:"Nafta", r:"Gasolina", p:10500, l:true, d:0.74},
+        {id:62, m:"Gasoil", r:"Diesel", p:10200, l:true, d:0.85},
+        {id:63, m:"Kerosene", r:"Combustible jet", p:10300, l:true, d:0.81},
+        {id:64, m:"Fuel oil", r:"Combustible pesado", p:9800, l:true, d:0.95},
+        {id:65, m:"Alcohol etílico", r:"Etanol", p:7100, l:true, d:0.79},
+        {id:66, m:"Alcohol metílico", r:"Metanol", p:5400, l:true, d:0.79},
+        {id:67, m:"Isopropanol", r:"Alcohol isopropílico", p:7300, l:true, d:0.78},
+        {id:68, m:"Acetona", r:"Solvente", p:7300, l:true, d:0.79},
+        {id:69, m:"Thinner", r:"Diluyente", p:8000, l:true, d:0.80},
+        {id:70, m:"Aguarrás", r:"Solvente mineral", p:10000, l:true, d:0.78},
+        {id:71, m:"Benceno", r:"Solvente aromático", p:9700, l:true, d:0.87},
+        {id:72, m:"Tolueno", r:"Solvente industrial", p:9600, l:true, d:0.87},
+        {id:73, m:"Xileno", r:"Solvente aromático", p:9500, l:true, d:0.86},
+        {id:74, m:"Aceite vegetal", r:"Cocina", p:9000, l:true, d:0.92},
+        {id:75, m:"Aceite mineral", r:"Lubricante", p:10000, l:true, d:0.88},
+        {id:76, m:"Grasa industrial", r:"Lubricación", p:9500, l:false},
+        {id:77, m:"Parafina", r:"Velas", p:10500, l:false},
+        {id:78, m:"Cera industrial", r:"Cera sólida", p:9000, l:false},
+        {id:79, m:"Asfalto", r:"Breas", p:9500, l:false},
+        {id:80, m:"Alquitrán", r:"Impermeabilizante", p:8500, l:false},
+        {id:81, m:"Pintura sintética", r:"Esmalte", p:6000, l:true, d:1.2},
+        {id:82, m:"Pintura epoxi", r:"Revestimiento", p:6500, l:true, d:1.3},
+        {id:83, m:"Barniz poliuretánico", r:"Barniz", p:7000, l:true, d:1.0},
+        {id:84, m:"Aerosoles", r:"Spray", p:8000, l:false},
+        {id:85, m:"Adhesivo contacto", r:"Pegamento", p:7000, l:true, d:0.85},
+        {id:86, m:"Cola vinílica", r:"Adhesivo PVAC", p:4500, l:false},
+        {id:87, m:"Silicona líquida", r:"Sellador", p:6800, l:false},
+        {id:88, m:"GLP", r:"Gas licuado", p:11000, l:true, d:0.54},
+        {id:89, m:"Gas natural", r:"Metano", p:12000, l:false},
+        {id:90, m:"Hidrógeno", r:"Hidrógeno gaseoso", p:28500, l:false},
+        {id:91, m:"Acetileno", r:"Gas industrial", p:11500, l:false},
+        {id:92, m:"Propano", r:"Gas combustible", p:11900, l:false},
+        {id:93, m:"Butano", r:"Gas combustible", p:11800, l:false},
+        {id:94, m:"Carburo", r:"Carburo calcio", p:4500, l:false},
+        {id:95, m:"Azufre", r:"Azufre sólido", p:2200, l:false},
+        {id:96, m:"Harina trigo", r:"Harina", p:3900, l:false},
+        {id:97, m:"Azúcar", r:"Azúcar refinada", p:4000, l:false},
+        {id:98, m:"Maíz", r:"Grano seco", p:4000, l:false},
+        {id:99, m:"Trigo", r:"Cereal", p:3900, l:false},
+        {id:100, m:"Soja", r:"Semillas", p:4700, l:false},
+        {id:101, m:"Arroz", r:"Arroz blanco", p:3600, l:false},
+        {id:102, m:"Café", r:"Café molido", p:5000, l:false},
+        {id:103, m:"Cacao", r:"Chocolate industrial", p:5500, l:false},
+        {id:104, m:"Tabaco", r:"Cigarrillos", p:4500, l:false},
+        {id:105, m:"Yerba mate", r:"Yerba seca", p:4200, l:false},
+        {id:106, m:"Té", r:"Té negro", p:4000, l:false},
+        {id:107, m:"Fideos", r:"Pasta seca", p:3800, l:false},
+        {id:108, m:"Galletas", r:"Galletitas", p:4500, l:false},
+        {id:109, m:"Chocolate", r:"Chocolate barra", p:5600, l:false},
+        {id:110, m:"Leche en polvo", r:"Lácteo", p:5000, l:false},
+        {id:111, m:"Queso seco", r:"Lácteo", p:4800, l:false},
+        {id:112, m:"Carne seca", r:"Charqui", p:5200, l:false},
+        {id:113, m:"Frutas secas", r:"Mix frutos", p:6000, l:false},
+        {id:114, m:"Maní", r:"Fruto seco", p:6200, l:false},
+        {id:115, m:"Nueces", r:"Frutos secos", p:6500, l:false},
+        {id:116, m:"Semillas girasol", r:"Girasol", p:6000, l:false},
+        {id:117, m:"Algodón prensado", r:"Fardos", p:4000, l:false},
+        {id:118, m:"Lana prensada", r:"Fardos lana", p:4500, l:false},
+        {id:119, m:"Papel aluminio", r:"Laminado mixto", p:1000, l:false},
+        {id:120, m:"Envases tetra", r:"Multicapa", p:4500, l:false},
+        {id:121, m:"Espuma acústica", r:"Panel acústico", p:6500, l:false},
+        {id:122, m:"Muebles madera", r:"Escritorios", p:4500, l:false},
+        {id:123, m:"Sillas plásticas", r:"Polipropileno", p:11000, l:false},
+        {id:124, m:"Sillas madera", r:"Sillas comunes", p:4400, l:false},
+        {id:125, m:"Cortinas tela", r:"Cortinados", p:4300, l:false},
+        {id:126, m:"Cortinas PVC", r:"Blackout", p:5000, l:false},
+        {id:127, m:"Tapizados", r:"Sofás", p:5500, l:false},
+        {id:128, m:"Espuma aislante", r:"Poliuretano", p:6500, l:false},
+        {id:129, m:"Lana vidrio", r:"Aislación", p:500, l:false},
+        {id:130, m:"Lana roca", r:"Aislación mineral", p:300, l:false},
+        {id:131, m:"Cartucho tinta", r:"Impresoras", p:6000, l:false},
+        {id:132, m:"Tóner", r:"Impresoras láser", p:7000, l:false},
+        {id:133, m:"Cables eléctricos", r:"PVC y cobre", p:5000, l:false},
+        {id:134, m:"Computadora", r:"Electrónica mixta", p:5500, l:false},
+        {id:135, m:"Televisor", r:"Electrónica", p:6000, l:false},
+        {id:136, m:"Celular", r:"Smartphone", p:6500, l:false},
+        {id:137, m:"Batería litio", r:"Li-ion", p:1500, l:false},
+        {id:138, m:"Batería plomo", r:"Automotor", p:300, l:false},
+        {id:139, m:"Transformador", r:"Aceite dieléctrico", p:9500, l:true, d:0.89},
+        {id:140, m:"Aceite dieléctrico", r:"Transformadores", p:10000, l:true, d:0.89},
+        {id:141, m:"Espuma poliuretano", r:"Panel sándwich", p:6500, l:false},
+        {id:142, m:"Poliisocianurato", r:"PIR", p:7000, l:false},
+        {id:143, m:"Cartelería acrílica", r:"Señalética", p:6500, l:false},
+        {id:144, m:"Lona PVC", r:"Cartelería", p:5000, l:false},
+        {id:145, m:"Pintura aerosol", r:"Aerosol pintura", p:8000, l:false},
+        {id:146, m:"Limpiador aerosol", r:"Desodorante ambiente", p:7800, l:false},
+        {id:147, m:"Cosméticos", r:"Cremas", p:6500, l:false},
+        {id:148, m:"Shampoo", r:"Higiene personal", p:4500, l:true, d:1.02},
+        {id:149, m:"Detergente", r:"Limpieza", p:4500, l:true, d:1.03},
+        {id:150, m:"Jabón sólido", r:"Tocador", p:5000, l:false},
+        {id:151, m:"Jabón líquido", r:"Higiene", p:4800, l:true, d:1.01},
+        {id:152, m:"Desinfectante", r:"Limpieza", p:3500, l:true, d:0.98},
+        {id:153, m:"Lavandina", r:"Hipoclorito", p:0, l:true, d:1.1},
+        {id:154, m:"Alcohol en gel", r:"Sanitizante", p:6500, l:false},
+        {id:155, m:"Perfumes", r:"Fragancias", p:7000, l:true, d:0.85},
+        {id:156, m:"Vaselina", r:"Cosmética", p:9500, l:false},
+        {id:157, m:"Cinta adhesiva", r:"Embalaje", p:6500, l:false},
+        {id:158, m:"Film stretch", r:"Embalaje", p:11000, l:false},
+        {id:159, m:"Bolsas residuos", r:"Polietileno", p:11000, l:false},
+        {id:160, m:"Envases PET", r:"Botellas", p:5500, l:false},
+        {id:161, m:"Envases HDPE", r:"Bidones", p:11000, l:false},
+        {id:162, m:"Espuma embalaje", r:"Protección", p:10000, l:false},
+        {id:163, m:"Poliuretano rígido", r:"Aislación", p:6500, l:false},
+        {id:164, m:"Cartón huevo", r:"Embalaje", p:4000, l:false},
+        {id:165, m:"Papel encerado", r:"Packaging", p:5000, l:false},
+        {id:166, m:"Residuos urbanos", r:"Basura mixta", p:2500, l:false},
+        {id:167, m:"Residuos plásticos", r:"Scrap plástico", p:10000, l:false},
+        {id:168, m:"Residuos textiles", r:"Retazos", p:4500, l:false},
+        {id:169, m:"Residuos madera", r:"Descartes", p:4300, l:false},
+        {id:170, m:"Biomasa", r:"Orgánicos secos", p:4000, l:false},
+        {id:171, m:"Pellet madera", r:"Biomasa", p:4500, l:false},
+        {id:172, m:"Briquetas", r:"Biomasa prensada", p:4700, l:false},
+        {id:173, m:"Heno", r:"Pastura seca", p:3800, l:false},
+        {id:174, m:"Paja", r:"Paja trigo", p:3500, l:false},
+        {id:175, m:"Forraje", r:"Alfalfa seca", p:3700, l:false},
+        {id:176, m:"Caucho sintético", r:"EPDM", p:8500, l:false},
+        {id:177, m:"Neopreno", r:"Goma industrial", p:7000, l:false},
+        {id:178, m:"Poliuretano elastómero", r:"Industrial", p:7000, l:false},
+        {id:179, m:"Espuma latex", r:"Colchonería", p:6000, l:false},
+        {id:180, m:"Cartón plastificado", r:"Envases", p:4800, l:false},
+        {id:181, m:"Laminado madera", r:"Piso flotante", p:4500, l:false},
+        {id:182, m:"Piso vinílico", r:"Revestimiento", p:5000, l:false},
+        {id:183, m:"Piso goma", r:"Piso deportivo", p:7000, l:false},
+        {id:184, m:"Piso PVC", r:"Revestimiento", p:5000, l:false},
+        {id:185, m:"Piso madera", r:"Parquet", p:4400, l:false},
+        {id:186, m:"Espuma melamina", r:"Acústica", p:5500, l:false},
+        {id:187, m:"Resina fenólica", r:"Laminados", p:6500, l:false},
+        {id:188, m:"Fenólico", r:"Tablero fenólico", p:4500, l:false},
+        {id:189, m:"Poliester reforzado", r:"PRFV", p:7000, l:false},
+        {id:190, m:"Fibra carbono", r:"Composite", p:7500, l:false},
+        {id:191, m:"Policarbonato", r:"Planchas", p:7000, l:false},
+        {id:192, m:"EVA expandido", r:"Goma EVA", p:6500, l:false},
+        {id:193, m:"Espuma polietileno", r:"Protección", p:10000, l:false},
+        {id:194, m:"Poliamida", r:"Nylon técnico", p:7500, l:false},
+        {id:195, m:"Urea formaldehído", r:"Adhesivo", p:5000, l:false},
+        {id:196, m:"Melamina resina", r:"Resina melamínica", p:5500, l:false},
+        {id:197, m:"Caucho nitrilo", r:"NBR", p:8000, l:false},
+        {id:198, m:"Caucho silicona", r:"Industrial", p:7000, l:false},
+        {id:199, m:"Pintura látex", r:"Acrílica", p:5000, l:true, d:1.1},
+        {id:200, m:"Sellador asfáltico", r:"Construcción", p:8500, l:false},
+        {id:201, m:"Pegamento epoxi", r:"Adhesivo", p:7000, l:false},
+        {id:202, m:"Poliuretano líquido", r:"Resina PU", p:7000, l:true, d:1.05},
+        {id:203, m:"Insecticida aerosol", r:"Mata insectos", p:8000, l:false},
+        {id:204, m:"Herbicida", r:"Agroquímico", p:5000, l:false},
+        {id:205, m:"Fertilizante orgánico", r:"Compost", p:2500, l:false},
+        {id:206, m:"Fertilizante químico", r:"NPK", p:1000, l:false},
+        {id:207, m:"Turba", r:"Sustrato", p:3500, l:false},
+        {id:208, m:"Compost", r:"Abono", p:2500, l:false},
+        {id:209, m:"Resina natural", r:"Colofonia", p:7500, l:false},
+        {id:210, m:"Latex natural", r:"Caucho líquido", p:7000, l:true, d:0.95},
+        {id:211, m:"Papel fotográfico", r:"Glossy", p:4500, l:false},
+        {id:212, m:"Vinilo adhesivo", r:"Señalización", p:5000, l:false},
+        {id:213, m:"Lona publicitaria", r:"Banner PVC", p:5000, l:false},
+        {id:214, m:"Espuma acústica PU", r:"Paneles", p:6500, l:false},
+        {id:215, m:"Polietileno expandido", r:"Foam", p:10000, l:false},
+        {id:216, m:"Guantes látex", r:"Protección", p:7000, l:false},
+        {id:217, m:"Guantes nitrilo", r:"Protección", p:8000, l:false},
+        {id:218, m:"Barbijos", r:"Textil sintético", p:5500, l:false},
+        {id:219, m:"Uniformes", r:"Textil mezcla", p:4500, l:false},
+        {id:220, m:"Delantales PVC", r:"Protección", p:5000, l:false},
+        {id:221, m:"Casco ABS", r:"Seguridad", p:8500, l:false},
+        {id:222, m:"Máscaras soldar", r:"Polímero", p:7000, l:false},
+        {id:223, m:"Mangueras goma", r:"Industrial", p:8000, l:false},
+        {id:224, m:"Mangueras PVC", r:"Industrial", p:5000, l:false},
+        {id:225, m:"Cinta aisladora", r:"PVC", p:5000, l:false},
+        {id:226, m:"Tubería PEAD", r:"HDPE", p:11000, l:false},
+        {id:227, m:"Tubería PP", r:"Polipropileno", p:11000, l:false},
+        {id:228, m:"Bidones plásticos", r:"HDPE", p:11000, l:false},
+        {id:229, m:"Baldes plásticos", r:"PP", p:11000, l:false},
+        {id:230, m:"Cepillos plásticos", r:"Nylon", p:7500, l:false},
+        {id:231, m:"Escobas", r:"Madera y plástico", p:5000, l:false},
+        {id:232, m:"Trapos algodón", r:"Limpieza", p:4000, l:false},
+        {id:233, m:"Paños microfibra", r:"Sintético", p:6000, l:false},
+        {id:234, m:"Esponjas PU", r:"Limpieza", p:6500, l:false},
+        {id:235, m:"Esponja metálica", r:"Acero", p:0, l:false},
+        {id:236, m:"Cartón alveolar", r:"Packaging", p:4200, l:false},
+        {id:237, m:"Papel celofán", r:"Packaging", p:4500, l:false},
+        {id:238, m:"Celulosa", r:"Pasta papel", p:4200, l:false},
+        {id:239, m:"Acetato", r:"Láminas", p:6000, l:false},
+        {id:240, m:"Poliuretano spray", r:"Espuma expansiva", p:7000, l:false},
+        {id:241, m:"Fibra poliéster", r:"Relleno", p:6000, l:false},
+        {id:242, m:"Ropa usada", r:"Mezcla textil", p:4500, l:false},
+        {id:243, m:"Juguetes plásticos", r:"ABS/PP", p:9000, l:false},
+        {id:244, m:"Muebles oficina", r:"Mixtos", p:5000, l:false},
+        {id:245, m:"Sillones", r:"Espuma y tela", p:5500, l:false},
+        {id:246, m:"Panel yeso", r:"Durlock", p:500, l:false},
+        {id:247, m:"Yeso", r:"Construcción", p:0, l:false},
+        {id:248, m:"Cemento", r:"Portland", p:0, l:false},
+        {id:249, m:"Hormigón", r:"H°A°", p:0, l:false},
+        {id:250, m:"Arena", r:"Sílice", p:0, l:false},
+        {id:251, m:"Vidrio", r:"Vidrio común", p:0, l:false},
+        {id:252, m:"Cerámica", r:"Pisos", p:0, l:false},
+        {id:253, m:"Ladrillo", r:"Cerámico", p:0, l:false},
+        {id:254, m:"Piedra", r:"Granito", p:0, l:false},
+        {id:255, m:"Acero", r:"Perfiles", p:0, l:false},
+        {id:256, m:"Aluminio", r:"Chapas", p:0, l:false},
+        {id:257, m:"Cobre", r:"Conductores", p:0, l:false},
+        {id:258, m:"Zinc", r:"Chapas", p:0, l:false},
+        {id:259, m:"Estaño", r:"Soldadura", p:0, l:false},
+        {id:260, m:"Magnesio", r:"Viruta Mg", p:6000, l:false},
+        {id:261, m:"Sodio", r:"Metal reactivo", p:2500, l:false},
+        {id:262, m:"Potasio", r:"Metal reactivo", p:2200, l:false},
+        {id:263, m:"Fósforo rojo", r:"Químico", p:5800, l:false},
+        {id:264, m:"Fósforo blanco", r:"Químico", p:5900, l:false},
+        {id:265, m:"Carbón activado", r:"Filtros", p:7000, l:false},
+        {id:266, m:"Papel filtro", r:"Laboratorio", p:4000, l:false},
+        {id:267, m:"Residuos hospitalarios", r:"Patogénicos", p:3500, l:false},
+        {id:268, m:"Guatas", r:"Textil relleno", p:4500, l:false},
+        {id:269, m:"Espuma poliéster", r:"Relleno", p:6000, l:false},
+        {id:270, m:"Cuerina", r:"Sintético", p:5500, l:false},
+        {id:271, m:"Ecocuero", r:"PU", p:6000, l:false},
+        {id:272, m:"Panel sándwich", r:"PU + chapa", p:6000, l:false},
+        {id:273, m:"Film PVC", r:"Stretch", p:5000, l:false},
+        {id:274, m:"Plástico burbuja", r:"Embalaje", p:10000, l:false},
+        {id:275, m:"Bolsas rafia", r:"PP tejido", p:11000, l:false},
+        {id:276, m:"Big bag", r:"Bolsa industrial", p:11000, l:false},
+        {id:277, m:"Espuma fenólica", r:"Aislación", p:5000, l:false},
+        {id:278, m:"Carbón coque", r:"Industrial", p:7600, l:false},
+        {id:279, m:"Brea", r:"Impermeabilizante", p:8500, l:false},
+        {id:280, m:"Aceite hidráulico", r:"Industrial", p:10000, l:true, d:0.88},
+        {id:281, m:"Fluido transmisión", r:"ATF", p:9800, l:true, d:0.87},
+        {id:282, m:"Líquido frenos", r:"DOT", p:4500, l:true, d:1.05},
+        {id:283, m:"Refrigerante motor", r:"Anticongelante", p:3500, l:true, d:1.07},
+        {id:284, m:"Anticongelante", r:"Etilenglicol", p:5000, l:true, d:1.11},
+        {id:285, m:"Tinta impresión", r:"Offset", p:6000, l:true, d:1.0},
+        {id:286, m:"Papel autoadhesivo", r:"Etiquetas", p:4500, l:false},
+        {id:287, m:"Resina alquídica", r:"Pinturas", p:7000, l:true, d:0.95},
+        {id:288, m:"Polioles", r:"Químicos PU", p:7000, l:true, d:1.02},
+        {id:289, m:"Isocianatos", r:"Químicos PU", p:6000, l:true, d:1.23},
+        {id:290, m:"Solvente nitro", r:"Diluyente", p:8500, l:true, d:0.84},
+        {id:291, m:"Gasolina aviación", r:"AVGAS", p:10500, l:true, d:0.72},
+        {id:292, m:"JP-1", r:"Combustible aeronáutico", p:10300, l:true, d:0.8},
+        {id:293, m:"Biodiesel", r:"Biocombustible", p:9500, l:true, d:0.88},
+        {id:294, m:"Bioetanol", r:"Alcohol combustible", p:7100, l:true, d:0.79},
+        {id:295, m:"Aceite usado", r:"Residuo combustible", p:9500, l:true, d:0.9},
+        {id:296, m:"Trapos aceitados", r:"Residuos industriales", p:8000, l:false},
+        {id:297, m:"Viruta metálica aceitada", r:"Taller mecánico", p:4000, l:false},
+        {id:298, m:"Envases contaminados", r:"Químicos", p:7000, l:false},
+        {id:299, m:"Residuos farmacéuticos", r:"Medicamentos", p:4500, l:false},
+        {id:300, m:"Mezcla combustibles sólidos", r:"Residuo mixto", p:5000, l:false}];
+const DENS={86:1.05,87:1.0,201:1.1};
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(n,d=2)=>(+n||0).toLocaleString('es-AR',{minimumFractionDigits:d,maximumFractionDigits:d});
+
+// ===== Anexo VII, Dto. 351/79 =====
+const WOOD=4400; // kcal/kg: madera patrón, PCI 18,41 MJ/kg (pto. 1.2)
+const FN={2:[60,90,120,180,180],3:[30,60,90,120,180],4:[30,30,60,90,120],5:[null,30,30,60,90]};          // cuadro 2.2.1 (vent. natural)
+const FM={2:['NP','NP','NP','NP','NP'],3:[60,90,120,180,'NP'],4:[60,60,90,120,180],5:[30,60,60,90,120]};  // cuadro 2.2.2 (vent. mecánica)
+const TA={3:[1,2,3,6,'D'],4:[1,1,2,4,'D'],5:[1,1,1,3,'D']};   // Tabla 1 - clase A
+const TB={2:[6,8,10,20,'D'],3:[4,6,8,10,'D']};                // Tabla 2 - clase B
+const BAND=['hasta 15','16 a 30','31 a 60','61 a 100','más de 100'];
+const RN={1:'1 – Explosivo',2:'2 – Inflamable',3:'3 – Muy combustible',4:'4 – Combustible',5:'5 – Poco combustible',6:'6 – Incombustible',7:'7 – Refractario'};
+const USO={RA:'Residencial / Administrativo',CID:'Comercial / Industrial / Depósito',EC:'Espectáculos / Cultura'};
+// Clasificación orientativa de materiales (pto. 1.5)
+const R2=new Set([61,62,63,65,66,67,68,69,70,71,72,73,81,82,83,84,85,88,89,90,91,92,93,145,146,155,203,290,291,292,293,294]);
+const SP=new Set([94,137,260,261,262,263,264]);
+const R3=/madera|papel|cart[oó]n|algod[oó]n|lino|aserr|pallet|mdf|aglomerado|melamina|le[ñn]a|paja|heno|forraje|biomasa|pellet|briqueta|libros|revistas|diarios|archivos|corcho|bamb[uú]|carb[oó]n|celulosa|trapos|harina|az[uú]car|ma[ií]z|trigo|soja|arroz|caf[eé]|cacao|yerba|fideos|galletas|chocolate|leche|queso|frutas|man[ií]|nueces|semillas|tabaco|espuma|polietileno|polipropileno|poliestireno|pead|hdpe|telgopor|foam|film|bolsas|bidones|baldes|big bag|burbuja|neum[aá]ticos|c[aá]mara|caucho natural|aceite|grasa|parafina|cera|asfalto|alquitr[aá]n|brea|transformador|fuel/;
+const cls=x=>SP.has(x.id)?0:R2.has(x.id)?2:x.p===0?6:x.p<=1500?5:R3.test((x.m+' '+x.r).toLowerCase())?3:4;
+DB.forEach(x=>{if(DENS[x.id]){x.l=true;x.d=DENS[x.id]}});
+
+// ===== Estado =====
+const K='cdf_mbelluomini_v2';let S={est:{},tot:{sup:''},locs:[],ext:[],cur:0};const uid=()=>Math.random().toString(36).slice(2,9);
+const mk=nom=>({id:uid(),nom:nom||'',piso:'PB',uso:'CID',vent:'nat',sup:'',rk:'',items:[]});
+const exOf=L=>S.ext.filter(e=>(+e.n||0)>0&&e.locs.includes(L.id));
+function norm(j){j.est=j.est||{};j.tot=j.tot||{sup:''};j.cur=0;j.locs.forEach(l=>{if(!l.id)l.id=uid()});
+ if(!Array.isArray(j.ext)){j.ext=[];j.locs.forEach(l=>{const e=l.ext;if(e&&(e.t||e.a||e.b))j.ext.push({t:e.t||'',a:e.a||'',b:e.b||'',c:e.c||'',n:e.n||1,piso:l.piso||'',locs:[l.id]})})}
+ j.locs.forEach(l=>delete l.ext);return j}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}};
+const cur=()=>S.locs[S.cur];
+
+function ev(L){
+ const A=parseFloat(L.sup)||0,kcal=L.items.reduce((s,i)=>s+i.kcal,0),q=A>0?kcal/WOOD/A:0,by={};
+ L.items.forEach(i=>{if(i.rk)by[i.rk]=(by[i.rk]||0)+i.kcal});
+ let sug=null,best=0;[2,3,4,5,6].forEach(r=>{if((by[r]||0)>best){best=by[r];sug=r}});
+ if(!sug&&L.items.length)sug=6;
+ const R=L.rk?+L.rk:sug,b=q<=15?0:q<=30?1:q<=60?2:q<=100?3:4;
+ const tF=(L.vent==='mec'?FM:FN)[R],F=tF?tF[b]:null,pa=TA[R]?TA[R][b]:null,pb=TB[R]?TB[R][b]:null,al=[];
+ if(A<=0)al.push(['Ingrese la superficie de piso del local.']);
+ if(L.uso!=='CID'&&(R===1||R===2))al.push(['Riesgo '+R+' NO PERMITIDO para esta actividad predominante (Tabla 2.1).']);
+ else if(L.uso!=='CID'&&R>=5)al.push(['Riesgo '+R+' no contemplado para esta actividad en la Tabla 2.1.']);
+ if(F==='NP')al.push(['Resistencia al fuego NO PERMITIDA para esta carga y ventilación mecánica (cuadro 2.2.2).']);
+ if(q>100)al.push(['Carga de fuego > 100 kg/m²: potencial extintor "a determinar en cada caso" (Tablas 1 y 2).']);
+ if(by[2]>0&&R!==2)al.push(['Hay inflamables (riesgo 2): '+fmt(100*by[2]/kcal,1)+'% de la energía. Verificar clase B (pto. 4.2; mín. 5 B por 7.1.1). Si el derrame posible supera 1 m², la Tabla 2 no aplica.',1]);
+ if(L.items.some(i=>i.sp))al.push(['Contiene materiales de riesgo especial (reactivos / clase D / litio): evaluar aparte.',1]);
+
+ const ex=exOf(L),nE=ex.reduce((s,e)=>s+(+e.n||0),0),mA=Math.max(0,...ex.map(e=>+e.a||0)),mB=Math.max(0,...ex.map(e=>+e.b||0)),mn=Math.ceil(A/200),det=[];let ver='Sin datos';
+ if(ex.some(e=>(+e.a||0)>0||(+e.b||0)>0)){
+  if(ex.some(e=>((+e.a||0)>0&&+e.a<1)||((+e.b||0)>0&&+e.b<5)))det.push('potencial mínimo por matafuego: 1 A / 5 B (7.1.1)');
+  if(typeof pa==='number'&&mA<pa)det.push('potencial A inferior al requerido (Tabla 1)');
+  if(typeof pb==='number'&&mB<pb)det.push('potencial B inferior al requerido (Tabla 2)');
+  if(nE<mn)det.push('cantidad insuficiente: hay '+nE+' y se requiere 1 c/200 m² (mín. '+mn+')');
+  ver=det.length?'No cumple':'Cumple';}
+ return{A,kcal,q,R,sug,b,F,pa,pb,al,ver,det,ex,nE,mn};
+}
+const fF=F=>F===null||F===undefined?'—':F==='NP'?'NO PERMITIDO':'F '+F;
+const pv=(v,l)=>v==null?'—':v==='D'?'A determinar':v+' '+l;
+const pot=r=>pv(r.pa,'A')+(r.pb!=null?' / '+pv(r.pb,'B'):'');
+const pe=e=>[+e.a?esc(e.a)+'A':'',+e.b?esc(e.b)+'B':'',e.c?'C':''].filter(Boolean).join(' ')||'—';
+const exl=L=>{const x=exOf(L);return x.length?x.map(e=>(esc(e.t)||'s/d')+' ('+pe(e)+') ×'+esc(e.n)).join('<br>')+'<br><b>Total: '+x.reduce((s,e)=>s+(+e.n||0),0)+'</b>':'—'};
+const vc=v=>`<span class="${v==='Cumple'?'ok':v==='No cumple'?'no':''}">${v}</span>`;
+
+// ===== UI =====
+function fillMat(){const f=$('q').value.toLowerCase(),d=$('mat');d.innerHTML='';DB.forEach((x,i)=>{const t=`${x.id}. ${x.m} (${x.r})`;if(t.toLowerCase().includes(f))d.add(new Option(t,i))});syncU()}
+function syncU(){const x=DB[$('mat').value];$('uw').style.display=x&&x.l?'block':'none';$('lq').textContent='Cantidad ('+(x&&x.l&&$('un').value==='lt'?'L':'kg')+')'}
+function addMat(){const x=DB[$('mat').value],q=parseFloat($('qty').value);if(!x||!(q>0))return alert('Ingrese una cantidad válida.');
+ const lt=x.l&&$('un').value==='lt',m=lt?q*x.d:q;cur().items.push({n:x.m,r:x.r,pc:x.p,rk:cls(x),q,u:lt?'L':'kg',m,kcal:m*x.p,sp:SP.has(x.id)});$('qty').value='';save();refresh()}
+function addCus(){const n=$('cn').value.trim(),pc=parseFloat($('cp').value),q=parseFloat($('cq').value);if(!n||!(pc>=0)||!(q>0))return alert('Complete nombre, poder calorífico (kcal/kg) y masa (kg).');
+ cur().items.push({n,r:'Personalizado',pc,rk:+$('ck').value,q,u:'kg',m:q,kcal:q*pc});['cn','cp','cq'].forEach(i=>$(i).value='');save();refresh()}
+function delItem(k){cur().items.splice(k,1);save();refresh()}
+function fillLocs(){const s=$('lsel');s.innerHTML='';S.locs.forEach((l,i)=>s.add(new Option((i+1)+'. '+(l.nom||'(sin nombre)'),i)));s.value=S.cur;renderExt()}
+function newLoc(dup){const c=cur(),n=dup?JSON.parse(JSON.stringify(c)):mk('Local '+(S.locs.length+1));if(dup){n.nom+=' (copia)';n.id=uid()}S.locs.push(n);S.cur=S.locs.length-1;save();fillLocs();loadF();refresh()}
+function delLoc(){if(S.locs.length<2)return alert('Debe existir al menos un local.');if(!confirm('¿Eliminar el local "'+(cur().nom||'sin nombre')+'"?'))return;const id=cur().id;S.locs.splice(S.cur,1);S.ext.forEach(e=>e.locs=e.locs.filter(x=>x!==id));S.cur=0;save();fillLocs();loadF();refresh()}
+function loadF(){const L=cur();document.querySelectorAll('[data-l]').forEach(i=>i.value=L[i.dataset.l]??'');$('tsup').value=S.tot.sup??'';$('nloc').value=S.locs.length;document.querySelectorAll('[data-e]').forEach(i=>i.value=S.est[i.dataset.e]??'')}
+document.addEventListener('input',e=>{const t=e.target,d=t.dataset;
+ if(d.l)cur()[d.l]=t.value;else if(d.e)S.est[d.e]=t.value;else return;
+ save();if(d.l==='nom'){fillLocs()}refresh()});
+function refresh(){
+ $('tb').innerHTML=cur().items.map((i,k)=>`<tr><td>${k+1}</td><td>${esc(i.n)}</td><td>${esc(i.r)}</td><td>${i.pc}</td><td>${fmt(i.q)} ${i.u}</td><td>${fmt(i.m)}</td><td>${fmt(i.kcal,0)}</td><td>${i.rk||'E'}</td><td><button class="x" onclick="delItem(${k})">✕</button></td></tr>`).join('');
+ const r=ev(cur());
+ $('res').innerHTML=`<div class="card"><label>Energía total</label><b>${fmt(r.kcal,0)}</b>kcal</div><div class="card h"><label style="color:#fff">CARGA DE FUEGO (q)</label><b>${fmt(r.q)}</b>kg/m² (madera eq.)</div>
+ <div class="card"><label>Riesgo</label><b>${r.R||'—'}</b>${r.R?RN[r.R].slice(4):''}${cur().rk&&r.sug&&+cur().rk!==r.sug?'<br><small>(predominante: '+r.sug+')</small>':''}</div>
+ <div class="card"><label>Resistencia al fuego</label><b>${fF(r.F)}</b></div><div class="card"><label>Potencial extintor mín.</label><b>${pot(r)}</b></div><div class="card"><label>Verificación</label><b>${vc(r.ver)}</b></div>`;
+ $('als').innerHTML=r.al.map(a=>`<div class="al ${a[1]?'i':''}">${esc(a[0])}</div>`).join('')+(r.det.length?`<div class="al">Matafuegos: ${esc(r.det.join('; '))}.</div>`:'');
+ const tot=parseFloat(S.tot.sup)||0,sm=S.locs.reduce((a,l)=>a+(parseFloat(l.sup)||0),0),ov=sm>tot+.001;
+ $('tinfo').innerHTML=tot>0?`<div class="al ${ov?'':'i'}">Superficie asignada a los locales: <b>${fmt(sm)}</b> m² de ${fmt(tot)} m² — ${ov?'excede en '+fmt(sm-tot):'restan '+fmt(tot-sm)} m².</div>`:'';
+ $('allr').innerHTML=S.locs.map((l,i)=>{const r=ev(l);return `<tr style="cursor:pointer${i===S.cur?';background:#fdebd0':''}" onclick="S.cur=${i};save();fillLocs();loadF();refresh()"><td>${esc(l.nom)||'(sin nombre)'}</td><td>${esc(l.piso)}</td><td>${fmt(r.A)}</td><td><b>${fmt(r.q)}</b></td><td>${r.R||'—'}</td><td>${fF(r.F)}</td><td>${pot(r)}</td><td>${exl(l)}</td><td>${vc(r.ver)}${r.det.length?'<br><small>'+esc(r.det.join('; '))+'</small>':''}</td></tr>`}).join('');
+}
+function setN(){const n=Math.round(+$('nloc').value);if(!(n>=1&&n<=60))return alert('Ingrese una cantidad de locales entre 1 y 60.');
+ if(n<S.locs.length){const out=S.locs.slice(n);if(out.some(l=>l.items.length||l.sup)&&!confirm('Se eliminarán '+out.length+' local(es) con datos cargados. ¿Continuar?'))return;
+  S.locs.length=n;const ids=S.locs.map(l=>l.id);S.ext.forEach(e=>e.locs=e.locs.filter(x=>ids.includes(x)));if(S.cur>=n)S.cur=0}
+ else while(S.locs.length<n)S.locs.push(mk('Local '+(S.locs.length+1)));
+ save();fillLocs();loadF();refresh()}
+const CAT=[
+{t:'PQS ABC (fosfato monoamónico) 1 kg',a:'1',b:'5',c:'1',h:'1A 5B:C'},
+{t:'PQS ABC (fosfato monoamónico) 2,5 kg',a:'1',b:'5',c:'1',h:'1A 5B:C'},
+{t:'PQS ABC (fosfato monoamónico) 5 kg',a:'6',b:'40',c:'1',h:'6A 40B:C'},
+{t:'PQS ABC (fosfato monoamónico) 10 kg',a:'',b:'',c:'1',h:'entre 6A 40B:C y 10A según equipo'},
+{t:'PQS BC (bicarbonato) 2,5 a 10 kg',a:'',b:'',c:'1',h:'40B:C a 120B:C según carga; sin clase A'},
+{t:'Dióxido de carbono (CO₂) 1 a 10 kg',a:'',b:'',c:'1',h:'2B:C a 10B:C; sin clase A'},
+{t:'Agua a presión 10 L',a:'',b:'',c:'',h:'2A a 6A; no apto clase C'},
+{t:'Agua + espuma (AFFF / FFFP) 10 L',a:'',b:'',c:'',h:'2A:20B a 4A:120B'},
+{t:'Agua pulverizada dieléctrica 6 a 10 L',a:'',b:'',c:'1',h:'2A 10B; clase C según modelo'},
+{t:'Agente limpio (HCFC / HFC-236fa) 1 a 10 kg',a:'',b:'',c:'1',h:'1A:5B:C a 2A:10B:C'},
+{t:'Acetato de potasio – clase K 6 a 10 L',a:'',b:'',c:'',h:'1K a 2K (A y K); cocinas industriales'},
+{t:'Polvo D (metales) 5 a 10 kg',a:'',b:'',c:'',h:'clase D; sin numeración A/B, indicar el metal'}];
+function addCat(i){if(i==='')return;const x=CAT[+i];S.ext.push({t:x.t,a:x.a,b:x.b,c:x.c,n:1,piso:'PB',h:x.h,locs:[cur().id]});save();renderExt();refresh()}
+function addExt(){S.ext.push({t:'',a:'',b:'',c:'1',n:1,piso:'PB',locs:[cur().id]});save();renderExt();refresh()}
+function delExt(k){S.ext.splice(k,1);save();renderExt();refresh()}
+function setE(k,f,v){S.ext[k][f]=v;save();refresh()}
+function togE(k,id,on){const e=S.ext[k];e.locs=e.locs.filter(x=>x!==id);if(on)e.locs.push(id);save();refresh()}
+function allE(k){S.ext[k].locs=S.locs.map(l=>l.id);save();renderExt();refresh()}
+function renderExt(){const cs=$('cat');if(cs&&!cs.options.length)cs.innerHTML='<option value="">＋ Agregar desde catálogo de tipos…</option>'+CAT.map((x,i)=>`<option value="${i}">${x.t}</option>`).join('');$('exl').innerHTML=S.ext.map((e,k)=>`<div class="box" style="background:#fff;border:1px solid #ddd"><div class="g">
+<div style="grid-column:span 2"><label>Tipo / agente / capacidad</label><input value="${esc(e.t)}" placeholder="ABC a base de PQS de 5 kg" oninput="setE(${k},'t',this.value)"></div>
+<div><label>Potencial A (cada uno)</label><input type="number" value="${esc(e.a)}" placeholder="6" oninput="setE(${k},'a',this.value)"></div>
+<div><label>Potencial B (cada uno)</label><input type="number" value="${esc(e.b)}" placeholder="40" oninput="setE(${k},'b',this.value)"></div>
+<div><label>Clase C</label><select onchange="setE(${k},'c',this.value)"><option value="1"${e.c?' selected':''}>Sí</option><option value=""${e.c?'':' selected'}>No</option></select></div>
+<div><label>Cantidad</label><input type="number" min="0" value="${esc(e.n)}" oninput="setE(${k},'n',this.value)"></div>
+<div><label>Piso / nivel donde se ubican</label><input value="${esc(e.piso)}" oninput="setE(${k},'piso',this.value)"></div>
+<button class="btn r" onclick="delExt(${k})">Eliminar</button></div>
+${e.h?'<div style="font-size:.75rem;color:#666;margin-top:6px">Habitual: '+esc(e.h)+' — completar/verificar con la etiqueta del equipo.</div>':''}<div style="margin-top:8px;font-size:.8rem"><b>Cubre los locales:</b> ${S.locs.map(l=>`<label style="display:inline-flex;gap:4px;align-items:center;margin:0 10px 0 0;font-weight:400"><input type="checkbox" style="width:auto" ${e.locs.includes(l.id)?'checked':''} onchange="togE(${k},'${l.id}',this.checked)">${esc(l.nom||'(sin nombre)')}</label>`).join('')} <button class="btn" style="padding:3px 8px" onclick="allE(${k})">Todos</button></div></div>`).join('')||'<p style="font-size:.8rem;color:#777">Sin matafuegos cargados.</p>'}
+function tab(n){$('editor').classList.toggle('hide',n!==1);$('view2').classList.toggle('hide',n!==2);$('t1').classList.toggle('on',n===1);$('t2').classList.toggle('on',n===2);if(n===2)sheets()}
+
+// ===== Planillas =====
+const hd=t=>{const e=S.est;return `<h2>${t}</h2><table class="k"><tr><td>Establecimiento</td><td>${esc(e.nom)}</td><td>Fecha</td><td>${esc(e.fec)}</td></tr><tr><td>Domicilio</td><td>${esc(e.dom)}</td><td>CUIT</td><td>${esc(e.cuit)}</td></tr></table>`};
+const ft=()=>`<div class="sig">Profesional: ${esc(S.est.prof)} — Mat.: ${esc(S.est.mat)}<br><br>______________________<br>Firma y sello</div>`;
+function sheetLoc(L,i){const r=ev(L);
+ return `<div class="sheet loc${i===S.cur?' cur':''}">${hd('PLANILLA DE CARGA DE FUEGO – LOCAL '+(i+1)+' de '+S.locs.length)}
+ <table class="k"><tr><td>Local</td><td>${esc(L.nom)}</td><td>Piso</td><td>${esc(L.piso)}</td></tr><tr><td>Superficie de piso</td><td>${fmt(r.A)} m²</td><td>Actividad</td><td>${USO[L.uso]}</td></tr></table>
+ <table><tr><th>Nº</th><th class="l">Material</th><th class="l">Ref.</th><th>P. cal. (kcal/kg)</th><th>Cantidad</th><th>Masa (kg)</th><th>Energía (kcal)</th></tr>
+ ${L.items.map((x,k)=>`<tr><td>${k+1}</td><td class="l">${esc(x.n)}</td><td class="l">${esc(x.r)}</td><td>${x.pc}</td><td>${fmt(x.q)} ${x.u}</td><td>${fmt(x.m)}</td><td>${fmt(x.kcal,0)}</td></tr>`).join('')}
+ <tr><th colspan="6" class="l">ΣQ – Energía total</th><th>${fmt(r.kcal,0)}</th></tr></table>
+ <table class="k"><tr><td>Carga de fuego q = ΣQ / (${WOOD}·A)</td><td><b>${fmt(r.q)} kg/m²</b> (${fmt(r.kcal/1000/(r.A||1))} Mcal/m²)</td><td>Rango Tabla</td><td>${BAND[r.b]} kg/m²</td></tr>
+ <tr><td>Riesgo adoptado</td><td>${r.R?RN[r.R]:'—'}</td><td>Ventilación</td><td>${L.vent==='mec'?'Mecánica':'Natural'}</td></tr>
+ <tr><td>Resistencia al fuego (cuadro ${L.vent==='mec'?'2.2.2':'2.2.1'})</td><td>${fF(r.F)}</td><td>Potencial extintor mín. (A / B)</td><td>${pot(r)}</td></tr>
+ <tr><td>Matafuegos que cubren el local</td><td colspan="3" class="l">${exl(L)}</td></tr>
+ <tr><td>Verificación</td><td colspan="3">${vc(r.ver)}${r.det.length?' – '+esc(r.det.join('; ')):''}</td></tr></table>
+ ${r.al.map(a=>`<div class="n">⚠ ${esc(a[0])}</div>`).join('')}
+ <div class="n">q expresada en kg de madera equivalente (PCI patrón ${WOOD} kcal/kg = 18,41 MJ/kg, Anexo VII pto. 1.2). Líquidos y gases se consideran uniformemente repartidos en la superficie del sector. Cargas intermedias entre rangos de la Tabla (p. ej. 15,01) se asimilan al rango superior. Clasificación de riesgo: criterio del profesional. Un mismo matafuego puede cubrir varios locales y se computa en cada uno.</div>${ft()}</div>`}
+function sheetSum(){const E=S.locs.map(ev),n=S.locs.length;
+ const pisos={},pp=p=>pisos[p]=pisos[p]||{a:0,n:0};S.locs.forEach(l=>{pp(l.piso||'—').a+=+l.sup||0});S.ext.forEach(e=>{pp(e.piso||'—').n+=+e.n||0});
+ return `<div class="sheet sum">${hd('PLANILLA RESUMEN – CARGA DE FUEGO Y POTENCIAL EXTINTOR')}
+ <table><tr><th rowspan="2">Sector de incendio</th><th rowspan="2">Piso</th><th rowspan="2">Superficie de piso (m²)</th><th rowspan="2">Carga de fuego (kg/m²)</th><th rowspan="2">Riesgo</th><th rowspan="2">Resist. al fuego</th><th colspan="2">Potencial extintor</th><th rowspan="2">Dotación de extintores</th><th rowspan="2">Verif.</th></tr><tr><th>Necesario</th><th>Existente</th></tr>
+ ${S.locs.map((l,i)=>{const r=E[i];return `<tr><td>${esc(l.nom)}</td><td>${esc(l.piso)}</td><td>${fmt(r.A)}</td><td><b>${fmt(r.q)}</b></td><td>${r.R||'—'}</td><td>${fF(r.F)}</td><td>${pot(r)}</td><td>${exl(l)}</td><td>${r.nE}</td><td>${vc(r.ver)}</td></tr>`}).join('')}
+ <tr><th colspan="2" class="l">Total</th><th>${fmt(E.reduce((s,r)=>s+r.A,0))}</th><th colspan="7" class="l">${+S.tot.sup?'Superficie total del estudio: '+fmt(S.tot.sup)+' m² – ':''}${n} local(es)</th></tr></table>
+ <table><tr><th class="l">Piso</th><th>Superficie cubierta (m²)</th><th>Mínimo 1 c/200 m² o fracción (7.1.1)</th><th>Existentes</th><th>Verif.</th></tr>
+ ${Object.entries(pisos).map(([p,v])=>{const m=Math.ceil(v.a/200);return `<tr><td class="l">${esc(p)}</td><td>${fmt(v.a)}</td><td>${m}</td><td>${v.n}</td><td>${vc(v.n>=m?'Cumple':'No cumple')}</td></tr>`}).join('')}</table>
+ <table><tr><th>Nº</th><th class="l">Matafuego existente en el lugar</th><th>Potencial</th><th>Cant.</th><th>Piso</th><th class="l">Locales que cubre</th></tr>${S.ext.map((e,k)=>`<tr><td>${k+1}</td><td class="l">${esc(e.t)||'—'}</td><td>${pe(e)}</td><td>${esc(e.n)||0}</td><td>${esc(e.piso)||'—'}</td><td class="l">${S.locs.filter(l=>e.locs.includes(l.id)).map(l=>esc(l.nom)||'s/n').join(', ')||'—'}</td></tr>`).join('')}</table>
+ <div class="n">Potencial mínimo exigido por Tablas 1 y 2 del Anexo VII, Cap. 18, Dto. 351/79 (reglamentario de la Ley 19.587). Resistencia al fuego según cuadros 2.2.1 / 2.2.2 y ventilación de cada local. Los matafuegos compartidos se computan en cada local que cubren; el control por piso los cuenta una sola vez.</div>${ft()}</div>`}
+function sheets(){$('sheets').innerHTML=S.locs.map(sheetLoc).join('')+sheetSum()}
+function prt(m){sheets();document.body.dataset.print=m;window.print()}
+window.onafterprint=()=>{delete document.body.dataset.print};
+
+// ===== Archivo =====
+function expJ(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='estudio_carga_fuego.json';a.click()}
+function impJ(f){const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(!Array.isArray(j.locs)||!j.locs.length)throw 0;S=norm(j);save();fillLocs();loadF();refresh();sheets()}catch(e){alert('Archivo de estudio inválido.')}};f.files[0]&&r.readAsText(f.files[0]);f.value=''}
+function resetAll(){if(!confirm('¿Borrar todo el estudio actual? (se recomienda guardarlo antes)'))return;S={est:{},tot:{sup:''},locs:[mk('Local 1')],ext:[],cur:0};save();fillLocs();loadF();refresh();sheets()}
+
+window.onload=()=>{try{const j=JSON.parse(localStorage.getItem(K));if(j&&Array.isArray(j.locs)&&j.locs.length)S=norm(j)}catch(e){}
+ if(!S.locs.length)S.locs=[mk('Local 1')];$('yr').textContent=new Date().getFullYear();fillMat();fillLocs();loadF();refresh();
+ if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}};
+</script><script>
+function dash(){const E=S.locs.map(l=>({l,r:ev(l)})),tot=S.locs.reduce((a,l)=>a+(+l.sup||0),0),nm=S.ext.reduce((a,e)=>a+(+e.n||0),0),c={'Cumple':0,'No cumple':0,'Sin datos':0};E.forEach(x=>c[x.r.ver]++);
+ const qs=E.map(x=>+x.r.q||0),mq=Math.max(1,...qs),cl=v=>v==='Cumple'?'vok':v==='No cumple'?'vno':'vnd';
+ $('kp').innerHTML=[['Locales',S.locs.length],['Superficie (m²)',fmt(tot)],['q máx. (kg/m²)',fmt(Math.max(0,...qs))],['Matafuegos',nm],['Cumplen',c['Cumple']+' / '+S.locs.length]].map(k=>`<div class="kc"><span>${k[0]}</span><b>${k[1]}</b></div>`).join('');
+ $('bars').innerHTML=E.map(({l,r},i)=>`<div class="br" onclick="S.cur=${i};save();fillLocs();loadF();refresh()"><span>${esc(l.nom)||'Local '+(i+1)}</span><i><u class="${cl(r.ver)}" style="width:${Math.max(2,qs[i]/mq*100)}%"></u></i><em>${fmt(r.q)}</em></div>`).join('');
+ $('vst').innerHTML='<div class="stk">'+[['Cumple','vok'],['No cumple','vno'],['Sin datos','vnd']].map(([k,x])=>c[k]?`<u class="${x}" style="flex:${c[k]}">${c[k]}</u>`:'').join('')+'</div><div class="lg">'+[['Cumple','vok'],['No cumple','vno'],['Sin datos','vnd']].map(([k,x])=>`<span><i class="${x}"></i>${k} ${c[k]}</span>`).join('')+'</div>'}
+{const _r=refresh;refresh=function(){_r();dash()}}
+window.addEventListener('load',dash);
+</script>
+</body></html>
